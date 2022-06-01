@@ -1,5 +1,8 @@
-### Hi there 👋
-
+### Install zsh power10k configuration
+run 
+```bash
+curl https://raw.githubusercontent.com/Inigo183/inigo183/main/zsh/setup.sh | bash
+```
 <!--
 **Inigo183/inigo183** is a ✨ _special_ ✨ repository because its `README.md` (this file) appears on your GitHub profile.
 
