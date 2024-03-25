@@ -35,6 +35,9 @@ curl https://raw.githubusercontent.com/izarte/izarte/main/zsh/p10k.zsh > $HOME/.
 wsl_home
 
 # install tools
+# vim
+sudo apt-get update && sudo apt-get install vim -y
+
 # docker
 
 for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
