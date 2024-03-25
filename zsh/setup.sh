@@ -34,55 +34,65 @@ curl https://raw.githubusercontent.com/izarte/izarte/main/zsh/p10k.zsh > $HOME/.
 # customize .zshrc if we are on WSL to use /home/$USER as default location
 wsl_home
 
-# check if it is debian OS for docker installation
+# install tools
+# vim
+sudo apt-get update && sudo apt-get install vim -y
+
+# Declare a variable specific to this script
 is_debian=false
+
 # Check if /etc/os-release file exists
 if [ -f /etc/os-release ]; then
+    # Source the file to get variables
+    . /etc/os-release
+    
     # Check the value of the ID variable
     if [ "$ID" = "debian" ]; then
         is_debian=true
-    else
-        is_debian=false
     fi
 else
     echo "Unable to determine the operating system."
     exit 1
 fi
 
-# install tools
-# vim
-sudo apt-get update && sudo apt-get install vim -y
-
 # docker
-
-for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
-# Add Docker's official GPG key:
-sudo apt-get update
-sudo apt-get install ca-certificates curl
-sudo install -m 0755 -d /etc/apt/keyrings
-if [ "$is_debian" = true]; then
-	sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
-else
-	sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
-fi
-sudo chmod a+r /etc/apt/keyrings/docker.asc
-
-# Add the repository to Apt sources:
 if [ "$is_debian" = true ]; then
+	# Uninstall all conflicting packages
+	for pkg in docker.io docker-doc docker-compose podman-docker containerd runc; do sudo apt-get remove $pkg; done
+	 # Add Docker's official GPG key:
+	sudo apt-get update
+	sudo apt-get install ca-certificates curl
+	sudo install -m 0755 -d /etc/apt/keyrings
+	sudo curl -fsSL https://download.docker.com/linux/debian/gpg -o /etc/apt/keyrings/docker.asc
+	sudo chmod a+r /etc/apt/keyrings/docker.asc
+	
+	# Add the repository to Apt sources:
 	echo \
-  	  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
-  	  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  	  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/debian \
+	  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+	  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo apt-get update
+	sudo apt-get install docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 else
+	# Uninstall all conflicting packages
+	for pkg in docker.io docker-doc docker-compose docker-compose-v2 podman-docker containerd runc; do sudo apt-get remove $pkg; done
+	# Add Docker's official GPG key:
+	sudo apt-get update
+	sudo apt-get install ca-certificates curl
+	sudo install -m 0755 -d /etc/apt/keyrings
+	sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg -o /etc/apt/keyrings/docker.asc
+	sudo chmod a+r /etc/apt/keyrings/docker.asc
+	
+	# Add the repository to Apt sources:
 	echo \
-  	  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
-  	  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-  	  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	  "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.asc] https://download.docker.com/linux/ubuntu \
+	  $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
+	  sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+	sudo apt-get update
+	
+	sudo apt-get install -y ca-certificates gnupg lsb-release
+	sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 fi
-sudo apt-get update
-
-sudo apt-get install -y ca-certificates gnupg lsb-release
-sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 sudo groupadd docker
 sudo usermod -aG docker $USER
 newgrp docker
